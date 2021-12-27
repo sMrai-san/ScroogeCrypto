@@ -1,0 +1,44 @@
+﻿@model IEnumerable<ScroogeCrypto.Models.CryptoJsonModel>
+
+@{
+    ViewData["Title"] = "GetCrypto";
+}
+
+<h1>GetCrypto</h1>
+
+<p class="h4 text-info">The maximum amount of days bitcoin’s price was decreasing in a row was @ViewData["Downward"] days</p>
+<div>
+    <p class="h4 text-info">
+        The highest trading volume within a given date range was:
+        <br />
+        Date: @ViewData["HighestPriceDate"]
+        <br />
+        Value: @ViewData["HighestPrice"] €
+    </p>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Date
+            </th>
+            <th>
+                Price
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
