@@ -6,16 +6,31 @@
 
 <h1>GetCrypto</h1>
 
-<p class="h4 text-info">The maximum amount of days bitcoin’s price was decreasing in a row was @ViewData["Downward"] days</p>
-<div>
-    <p class="h4 text-info">
-        The highest trading volume within a given date range was:
-        <br />
-        Date: @ViewData["HighestPriceDate"]
-        <br />
-        Value: @ViewData["HighestPrice"] €
-    </p>
+<p class="h5 text-info">The maximum amount of days bitcoin’s price was decreasing in a row was @ViewData["Downward"] days</p>
+<div class="mt-4">
+    <p class="h5 text-info">The highest price within a given date range</p>
+    <p>Date: @ViewData["HighestPriceDate"]</p>
+    <p>Value: @ViewData["HighestPrice"] €</p>
 </div>
+
+<div class="mt-4">
+    <p class="h5 text-warning">The lowest price within a given date range</p>
+    <p>Date: @ViewData["LowestPriceDate"]</p>
+    <p>Value: @ViewData["LowestPrice"] €</p>
+</div>
+@if (ViewData["DoNotBuy"] != null)
+{
+    <div class="mt-4">
+        <p class="h5 text-danger bg-light p-4">@ViewData["DoNotBuy"]</p>
+    </div>
+}
+    @foreach (var i in ViewData["TimeToSell"] as IEnumerable<string>)
+    {
+        <p>@i</p>
+        <hr />
+    }
+
+
 
 <table class="table">
     <thead>
