@@ -8,27 +8,37 @@
 
 <p class="h5 text-info">The maximum amount of days bitcoin’s price was decreasing in a row was @ViewData["Downward"] days</p>
 <div class="mt-4">
-    <p class="h5 text-info">The highest price within a given date range</p>
+    <p class="h5 text-success">The highest price within a given date range</p>
     <p>Date: @ViewData["HighestPriceDate"]</p>
     <p>Value: @ViewData["HighestPrice"] €</p>
 </div>
 
-<div class="mt-4">
-    <p class="h5 text-warning">The lowest price within a given date range</p>
-    <p>Date: @ViewData["LowestPriceDate"]</p>
-    <p>Value: @ViewData["LowestPrice"] €</p>
-</div>
-@if (ViewData["DoNotBuy"] != null)
+<hr />
+
+@*//IF YOU WANT TO SEE THE LOWEST PRICE UNCOMMENT THIS*@
+@*<div class="mt-4">
+        <p class="h5 text-warning">The lowest price within a given date range</p>
+        <p>Date: @ViewData["LowestPriceDate"]</p>
+        <p>Value: @ViewData["LowestPrice"] €</p>
+    </div>*@
+
+@if (ViewData["NoTimeToBuyOrSell"] == null)
 {
-    <div class="mt-4">
-        <p class="h5 text-danger bg-light p-4">@ViewData["DoNotBuy"]</p>
-    </div>
-}
-    @foreach (var i in ViewData["TimeToSell"] as IEnumerable<string>)
+    @foreach (var i in ViewData["TimeToSell"] as IEnumerable<CryptoProfitModel>)
     {
-        <p>@i</p>
+        <p>Best day to buy: @i.BuyDate.ToString("dd.MM.yyyy")</p>
+        <p>Best day to sell: @i.SellDate.ToString("dd.MM.yyyy")</p>
+        <p>Profit: @i.Profit €</p>
         <hr />
     }
+}
+else
+{
+<div class="alert alert-danger" role="alert">
+    @ViewData["NoTimeToBuyOrSell"]
+</div>
+}
+
 
 
 

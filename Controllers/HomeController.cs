@@ -64,9 +64,6 @@ namespace ScroogeCrypto.Controllers
             List<int> downwardDaysList = new List<int>();
             int daysInRange = 0;
 
-            List<CryptoJsonModel> timeMachine = new List<CryptoJsonModel>();
-            List<double> kk = new List<double>();
-
             //Looping each item from the prices -list
             foreach (var item in prices)
             {
@@ -96,7 +93,6 @@ namespace ScroogeCrypto.Controllers
                     m.Date = UnixTimeToDateTime((long)item[0]);
                     m.Price = item[1];
                     getCryptos.Add(m);
-                    kk.Add(item[1]);
                     currentDay = UnixTimeToDateTime((long)item[0]);
                     currentDay = currentDay.AddDays(1);
                     currentDayPriceHolder = item[1];
@@ -138,22 +134,36 @@ namespace ScroogeCrypto.Controllers
             //ViewData["LowestPriceDate"] = leastValuableDate.ToString("dd/MM/yyyy");
             ViewData["LowestPriceDate"] = leastValuableDate;
 
-            //If the count is same in both days in range / downward days (excluding first day in range)
-            if (daysInRange - 1 == downwardDaysList.Max())
+            var getProfits = MaxProfit(getCryptos);
+            var nullProfits = getProfits.FirstOrDefault();
+            if (nullProfits.Error == "1")
             {
-                ViewData["DoNotBuy"] = "Given date range gave a downward trend, do not buy (back to the future)!";
-            }
 
+                ViewData["NoTimeToBuyOrSell"] = "Prices must be given for at least two days";
+            }
+            else if (nullProfits.Error == "2")
+            {
+                ViewData["NoTimeToBuyOrSell"] = "Given date range gave a downward trend, do not buy (back to the future)!";
+            }
+            else
+            {
+                ViewData["TimeToSell"] = getProfits;
+            }
             
-            var kikkelipaa = MaxProfit(getCryptos);
-            ViewData["TimeToSell"] = kikkelipaa;
 
             return View(getCryptos);
         }
 
-        public List<string> MaxProfit(List<CryptoJsonModel> pricesList)
+        //************************************************************
+        //Helper function to get the days when it's good to sell / buy
+        //https://www.geeksforgeeks.org/stock-buy-sell/
+        //************************************************************
+        public List<CryptoProfitModel> MaxProfit(List<CryptoJsonModel> pricesList)
         {
             List<double> priceList = new List<double>();
+            List<CryptoProfitModel> cProfit = new List<CryptoProfitModel>();
+            List<CryptoProfitModel> daysToBuyAndSell = new List<CryptoProfitModel>();
+
             foreach (var item in pricesList)
             {
                 priceList.Add((double)item.Price);
@@ -161,72 +171,90 @@ namespace ScroogeCrypto.Controllers
 
             int n = priceList.ToArray().Length;
 
-            List<string> daysToBuyAndSell = new List<string>();
-            // Prices must be given for at least two days
+            
+            List<double> bestPriceToSell = new List<double>();
+            //Prices must be given for at least two days
             if (n == 1)
             {
-                daysToBuyAndSell.Add("Prices must be given for at least two days");
+                CryptoProfitModel cProfitModel = new CryptoProfitModel();
+                cProfitModel.BuyDate = DateTime.Now;
+                cProfitModel.SellDate = DateTime.Now;
+                cProfitModel.Profit = 0;
+                cProfitModel.Error = "1";
+                daysToBuyAndSell.Add(cProfitModel);
                 return daysToBuyAndSell;
             }
 
             int count = 0;
 
-            // solution array
-            List<TimeMachine> sol = new List<TimeMachine>();
+            //Solution array
+            List<TimeMachineModel> sol = new List<TimeMachineModel>();
 
-            // Traverse through given price array
+            //Looping the pricelist
             int i = 0;
             while (i < n - 1)
             {
-                // Find Local Minima. Note that
-                // the limit is (n-2) as we are
-                // comparing present element
-                // to the next element.
+                //Find Local Minima.
                 while ((i < n - 1) && (priceList[i + 1] <= priceList[i]))
                     i++;
 
-                // If we reached the end, break
-                // as no further solution possible
+                //If we reached the end, break
                 if (i == n - 1)
                     break;
 
-                TimeMachine e = new TimeMachine();
+                TimeMachineModel e = new TimeMachineModel();
+                //Store the index of minima
                 e.Buy = i++;
-                // Store the index of minima
 
-                // Find Local Maxima. Note that
-                // the limit is (n-1) as we are
-                // comparing to previous element
+                //Find Local Maxima.
                 while ((i < n) && (priceList[i] >= priceList[i - 1]))
                     i++;
 
-                // Store the index of maxima
+                //Store the index of maxima
                 e.Sell = i - 1;
                 sol.Add(e);
 
-                // Increment number of buy/sell
+                //Increment number of buy/sell
                 count++;
             }
 
-            //
+            //If all the days are downward...
             if (count == 0)
             {
-                daysToBuyAndSell.Add("Given date range gave a downward trend, do not buy (back to the future)!");
+                CryptoProfitModel cProfitModel = new CryptoProfitModel();
+                cProfitModel.BuyDate = DateTime.Now;
+                cProfitModel.SellDate = DateTime.Now;
+                cProfitModel.Profit = 0;
+                cProfitModel.Error = "2";
+                daysToBuyAndSell.Add(cProfitModel);
             }
             else
             {
+                //********************************************************************
+                //Getting the best day to buy and best day to sell into a custom model
+                //HOX! it is also possible to see all the best days within the range (see commented code below)
                 for (int j = 0; j < count; j++)
                 {
+                    CryptoProfitModel cProfitModel = new CryptoProfitModel();
                     var buyDate = pricesList.ElementAt(Convert.ToInt32(sol[j].Buy));
                     var sellDate = pricesList.ElementAt(Convert.ToInt32(sol[j].Sell));
-                    daysToBuyAndSell.Add("Buy on day: " + buyDate.Date.ToString() + " Sell on day: " + sellDate.Date.ToString());
-                }
-            }
+                    cProfitModel.BuyDate = (DateTime)buyDate.Date;
+                    cProfitModel.SellDate = (DateTime)sellDate.Date;
+                    cProfitModel.Profit = (double)(sellDate.Price - buyDate.Price);
+                    cProfit.Add(cProfitModel);
 
+                    //All the days when to buy/sell
+                    //daysToBuyAndSell.Add(cProfitModel);
+                   }
+                //The best day for selling the bought bitcoin to maximize profits
+                var maxProfit = cProfit.Where(x => x.Profit == cProfit.Max(x => x.Profit)).FirstOrDefault();
+                daysToBuyAndSell.Add(maxProfit);
+            }
             return daysToBuyAndSell;
         }
 
-        //Converter Function (UnixTimo to DateTime)
+        //**********************************************
+        //Helper Function Converter (UnixTimo to DateTime)
         public DateTime UnixTimeToDateTime(long unixtime)
         {
             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);

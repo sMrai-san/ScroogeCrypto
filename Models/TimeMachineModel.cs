@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace ScroogeCrypto.Models
 {
-    public class TimeMachine
+    public class TimeMachineModel
     {
         public double Buy { get; set; }
         public double Sell { get; set; }
