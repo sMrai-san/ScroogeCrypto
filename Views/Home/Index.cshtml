@@ -3,23 +3,38 @@
     ViewData["Title"] = "Home Page";
 }
 
-@ViewBag.d
 
 @using (Html.BeginForm("GetCrypto", "Home", FormMethod.Post))
 {
     <div>
-        <h1 class="display-4">Scrooge's Crypto </h1>
-            <div class="form-group">
-                <label asp-for="EndDate">Start Date</label>
-                <input asp-for="StartDate" type="date" class="form-control input-validation-error" id="startDate">
-                <span asp-validation-for="StartDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="EndDate">End Date</label>
-                <input asp-for="EndDate" type="date" class="form-control input-validation-error" id="endDate">
-                <span asp-validation-for="EndDate" class="text-danger"></span>
-            </div>
+        <h1 class="display-4">Scrooge's Crypto</h1>
+        <div class="list-group mb-5 ml-3">
+            <a href="#" onclick="$('#startDate').focus()" class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">How to use</h5>
+                </div>
+                <p class="mb-1">&#8594; Select or type in the Start and End date.</p>
+                <p class="mb-1">&#8594; Click <span class="badge badge-primary">Submit</span></p>
+                <p class="mb-1">&#8594; Program will then give the following info:</p>
+                <small>- Longest downward trend within a given date range.</small><br />
+                <small>- The date with the highest trading volume and the volume on that day in euros.</small><br />
+                <small>- The best day for buying bitcoin, and the best day for selling the bought bitcoin to maximize profits.</small>
+            </a>
+        </div>
+        <div class="form-group col-7">
+            <label asp-for="StartDate">Start Date</label>
+            <input asp-for="StartDate" type="date" class="form-control input-validation-error" id="startDate">
+            <span asp-validation-for="StartDate" class="text-danger"></span>
+        </div>
+        <div class="form-group col-7">
+            <label asp-for="EndDate">End Date</label>
+            <input asp-for="EndDate" type="date" class="form-control input-validation-error" id="endDate">
+            <span asp-validation-for="EndDate" class="text-danger"></span>
+        </div>
+        <div class="form-group col-7">
             <button type="submit" class="btn btn-primary">Submit</button>
-        
+        </div>
+
+
     </div>
 }

@@ -4,13 +4,17 @@
     ViewData["Title"] = "GetCrypto";
 }
 
-<h1>GetCrypto</h1>
+<h1 class="display-4">Scrooge's Crypto</h1>
 
-<p class="h5 text-info">The maximum amount of days bitcoin’s price was decreasing in a row was @ViewData["Downward"] days</p>
+
+<p class="h5 text-info">The maximum amount of days bitcoin’s price was decreasing in a row was <strong>@ViewData["Downward"]</strong> days</p>
+
+<hr />
+
 <div class="mt-4">
-    <p class="h5 text-success">The highest price within a given date range</p>
-    <p>Date: @ViewData["HighestPriceDate"]</p>
-    <p>Value: @ViewData["HighestPrice"] €</p>
+    <p class="h5 text-success">The highest price within a given date range:</p>
+    <p><strong>Date: </strong>@ViewData["HighestPriceDate"]</p>
+    <p><strong>Price: </strong> @ViewData["HighestPrice"] €</p>
 </div>
 
 <hr />
@@ -22,48 +26,68 @@
         <p>Value: @ViewData["LowestPrice"] €</p>
     </div>*@
 
+<h5 class="text-secondary">Best day to buy and sell within a given date range:</h5>
 @if (ViewData["NoTimeToBuyOrSell"] == null)
 {
-    @foreach (var i in ViewData["TimeToSell"] as IEnumerable<CryptoProfitModel>)
+    @if (ViewData["TimeToSell"] != null)
     {
-        <p>Best day to buy: @i.BuyDate.ToString("dd.MM.yyyy")</p>
-        <p>Best day to sell: @i.SellDate.ToString("dd.MM.yyyy")</p>
-        <p>Profit: @i.Profit €</p>
-        <hr />
+        @foreach (var i in ViewData["TimeToSell"] as IEnumerable<CryptoProfitModel>)
+        {
+
+            <p><strong>Best day to buy:</strong> @i.BuyDate.ToString("dd.MM.yyyy")</p>
+            <p><strong>Best day to sell:</strong> @i.SellDate.ToString("dd.MM.yyyy")</p>
+            <p><strong>Profit (difference):</strong> @i.Profit €</p>
+            <hr />
+        }
     }
 }
 else
 {
-<div class="alert alert-danger" role="alert">
-    @ViewData["NoTimeToBuyOrSell"]
-</div>
+    <div class="alert alert-danger" role="alert">
+        @ViewData["NoTimeToBuyOrSell"]
+    </div>
 }
 
+<div id="accordion">
+    <h5 class="mb-0">
+        <button class="btn btn-primary" data-toggle="collapse" data-target="#collapseDays" aria-expanded="true" aria-controls="collapseDays">
+            <strong>Click to show days and prices:</strong>
+            <small>(For testing purposes only)</small>
+        </button>
+    </h5>
 
+    <div id="collapseDays" class="collapse" data-parent="#accordion">
+        <div class="card-body">
 
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            Date
+                        </th>
+                        <th>
+                            Price
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Date)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Price) €
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Date
-            </th>
-            <th>
-                Price
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Date)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Price)
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+</div>
+
+@*Hello Gyro Duck!*@
+<img class="fixedBottomRight" src="~/images/GyroDuck.png" width="200" />
