@@ -44,9 +44,9 @@ namespace ScroogeCrypto.Controllers
             else
             {
                 //We need to convert datetime to unixtime here
-                var sDate = ((DateTimeOffset)cModel.StartDate).ToUnixTimeSeconds();
+                var sDate = ((DateTimeOffset)cModel.StartDate).ToUniversalTime().ToUnixTimeSeconds();
                 //We can add 1 day here to get the last day's data too
-                var eDate = ((DateTimeOffset)cModel.EndDate.AddDays(1)).ToUnixTimeSeconds();
+                var eDate = ((DateTimeOffset)cModel.EndDate.AddDays(1)).ToUniversalTime().ToUnixTimeSeconds();
 
                 //************************************************************
                 //Getting the bitcoin prices from API (range)
@@ -128,14 +128,14 @@ namespace ScroogeCrypto.Controllers
                     ViewData["HighestPrice"] = mostValuable;
                     //If you need just the date:
                     //ViewData["HighestPriceDate"] = mostValuableDate.ToString("dd/MM/yyyy");
-                    ViewData["HighestPriceDate"] = mostValuableDate;
+                    ViewData["HighestPriceDate"] = mostValuableDate.ToString("dd.MM.yyyy HH:mm:ss");
 
                     //C
                     //Least valuable date
                     //ViewData["LowestPrice"] = Math.Round(leastValuable, 2).ToString();
                     ViewData["LowestPrice"] = leastValuable;
                     //ViewData["LowestPriceDate"] = leastValuableDate.ToString("dd/MM/yyyy");
-                    ViewData["LowestPriceDate"] = leastValuableDate;
+                    ViewData["LowestPriceDate"] = leastValuableDate.ToString("dd.MM.yyyy HH:mm:ss");
 
                     var getProfits = MaxProfit(getCryptos);
                     var nullProfits = getProfits.FirstOrDefault();
@@ -259,7 +259,7 @@ namespace ScroogeCrypto.Controllers
                     cProfitModel.Profit = (double)(sellDate.Price - buyDate.Price);
                     cProfit.Add(cProfitModel);
 
-                    //All the days when to buy/sell
+                    //All the days when it's good to buy/sell
                     //daysToBuyAndSell.Add(cProfitModel);
                 }
                 //The best day for selling the bought bitcoin to maximize profits
